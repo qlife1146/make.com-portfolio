@@ -1,0 +1,14 @@
+{
+  "jsonapi": {
+    "version": "1.0"
+  },
+  "data": {
+    "type": "posts",
+    "attributes": {
+      "title": "",
+      "slug": "",
+      "content_html": "<h2>시작하기</h2><p>Next.js로 블로그를 만들어봅시다.</p>",
+      "published": false
+    }
+  }
+}

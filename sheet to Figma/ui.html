@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+  <body style="font: 12px sans-serif; padding: 12px">
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <div style="display: flex; gap: 8px">
+        <button id="refresh" style="padding: 8px">새로고침</button>
+        <button id="downloadPng" style="padding: 8px">PNG 다운로드</button>
+      </div>
+
+      <pre
+        id="log"
+        style="
+          white-space: pre-wrap;
+          background: #f5f5f5;
+          padding: 8px;
+          border-radius: 6px;
+          height: 250px;
+          overflow: auto;
+        "
+      ></pre>
+
+      <!-- URL 입력 패널 -->
+      <div
+        id="urlPanel"
+        style="
+          display: none;
+          background: #fff;
+          border: 1px solid #ddd;
+          border-radius: 8px;
+          padding: 10px;
+        "
+      >
+        <div style="margin-bottom: 6px; font-weight: 600">
+          Make Webhook URL을 입력하세요
+        </div>
+
+        <input
+          id="webhookUrl"
+          placeholder="https://hook.us2.make.com/xxxxx"
+          style="
+            width: 100%;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            box-sizing: border-box;
+          "
+        />
+
+        <div style="display: flex; gap: 8px; margin-top: 8px">
+          <button id="tryUrl" style="padding: 8px; flex: 1">
+            이 URL로 시도
+          </button>
+          <button id="clearUrl" style="padding: 8px">저장값 삭제</button>
+        </div>
+
+        <div style="margin-top: 6px; color: #666; font-size: 11px">
+          ✅ 성공했을 때만 저장됩니다. (실패 시 저장 안 함)
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const TARGET_NODE_ID = "1-2"; // export target (ui -> code.js will convert to 1:2)
+
+      const logEl = document.getElementById("log");
+      const refreshBtn = document.getElementById("refresh");
+      const downloadBtn = document.getElementById("downloadPng");
+
+      const urlPanel = document.getElementById("urlPanel");
+      const urlEl = document.getElementById("webhookUrl");
+      const tryUrlBtn = document.getElementById("tryUrl");
+      const clearUrlBtn = document.getElementById("clearUrl");
+
+      let running = false;
+      let pendingUrlToSave = null;
+
+      function log(msg) {
+        logEl.textContent += msg + "\n";
+      }
+      function resetLog() {
+        logEl.textContent = "";
+      }
+      function showUrlPanel(reason) {
+        urlPanel.style.display = "block";
+        if (reason) log("⚠️ " + reason);
+      }
+      function hideUrlPanel() {
+        urlPanel.style.display = "none";
+      }
+
+      function requestSavedUrlAndRun() {
+        parent.postMessage({ pluginMessage: { type: "GET_SAVED_URL" } }, "*");
+      }
+
+      function runWebhookWithUrl(url) {
+        const u = (url || "").trim();
+        if (!u) {
+          showUrlPanel("URL이 비어있습니다.");
+          return;
+        }
+        if (running) return;
+
+        running = true;
+        pendingUrlToSave = u;
+
+        resetLog();
+        log("➡️ 요청 보냄: " + u);
+
+        parent.postMessage({ pluginMessage: { type: "RUN", url: u } }, "*");
+      }
+
+      function downloadPng() {
+        resetLog();
+        log("⬇️ PNG 내보내는 중... node_id=" + TARGET_NODE_ID);
+
+        parent.postMessage(
+          { pluginMessage: { type: "EXPORT_PNG", nodeId: TARGET_NODE_ID } },
+          "*"
+        );
+      }
+
+      // 초기 실행: 저장된 URL로 자동 실행 (없으면 입력창 표시)
+      window.onload = () => {
+        requestSavedUrlAndRun();
+      };
+
+      refreshBtn.onclick = () => {
+        requestSavedUrlAndRun();
+      };
+
+      refreshBtn.addEventListener("contextmenu", (e) => {
+        e.preventDefault();
+        showUrlPanel("URL을 입력/수정하세요");
+        urlEl.focus();
+        urlEl.select();
+      });
+
+      downloadBtn.onclick = () => downloadPng();
+
+      tryUrlBtn.onclick = () => {
+        hideUrlPanel();
+        runWebhookWithUrl(urlEl.value);
+      };
+
+      clearUrlBtn.onclick = () => {
+        parent.postMessage({ pluginMessage: { type: "CLEAR_SAVED_URL" } }, "*");
+        pendingUrlToSave = null;
+        resetLog();
+        showUrlPanel("저장된 URL을 삭제했습니다. 새 URL을 입력해 주세요.");
+      };
+
+      urlEl.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          tryUrlBtn.click();
+        }
+      });
+
+      function base64ToBlob(base64, mime) {
+        const bin = atob(base64);
+        const len = bin.length;
+        const bytes = new Uint8Array(len);
+        for (let i = 0; i < len; i++) bytes[i] = bin.charCodeAt(i);
+        return new Blob([bytes], { type: mime });
+      }
+
+      function triggerDownload(blob, filename) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }
+
+      window.onmessage = (event) => {
+        const msg = event.data.pluginMessage;
+        if (!msg) return;
+
+        if (msg.type === "LOG") log(msg.text);
+
+        if (msg.type === "SAVED_URL") {
+          const saved = (msg.url || "").trim();
+          if (!saved) {
+            resetLog();
+            showUrlPanel(
+              "저장된 Webhook URL이 없습니다. 입력 후 시도해 주세요."
+            );
+            running = false;
+            return;
+          }
+          urlEl.value = saved;
+          hideUrlPanel();
+          runWebhookWithUrl(saved);
+          return;
+        }
+
+        if (msg.type === "DONE") {
+          log("✅ 완료");
+          running = false;
+
+          // ✅ 성공했을 때만 저장
+          if (pendingUrlToSave) {
+            parent.postMessage(
+              {
+                pluginMessage: { type: "SET_SAVED_URL", url: pendingUrlToSave },
+              },
+              "*"
+            );
+            log("💾 URL 저장 요청");
+            pendingUrlToSave = null;
+          }
+
+          hideUrlPanel();
+          return;
+        }
+
+        if (msg.type === "ERROR") {
+          running = false;
+
+          const err = String(msg.text || "");
+          resetLog();
+          log("❌ " + err);
+
+          // 어떤 ERROR든 URL 입력 패널 표시 (요구사항)
+          showUrlPanel(
+            err.includes("Accepted") || err.includes("Unexpected token")
+              ? "응답이 JSON이 아니거나 URL이 잘못될 수 있습니다. URL을 다시 입력해 주세요."
+              : "실패했습니다. URL을 다시 입력해 시도해 주세요."
+          );
+
+          pendingUrlToSave = null;
+          return;
+        }
+
+        if (msg.type === "PNG_READY") {
+          const blob = base64ToBlob(msg.base64, "image/png");
+          triggerDownload(blob, msg.filename || "export.png");
+          log("✅ PNG 다운로드 완료: " + (msg.filename || "export.png"));
+          return;
+        }
+      };
+    </script>
+  </body>
+</html>

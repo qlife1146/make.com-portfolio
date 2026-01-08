@@ -1,0 +1,17 @@
+{
+  "name": "new",
+  "id": "1589923231857965978",
+  "api": "1.0.0",
+  "main": "code.js",
+  "capabilities": [],
+  "enableProposedApi": false,
+  "documentAccess": "dynamic-page",
+  "editorType": ["figma"],
+  "ui": "ui.html",
+  "networkAccess": {
+    "allowedDomains": [
+      "https://hook.us2.make.com",
+      "https://hook.eu1.make.com"
+    ]
+  }
+}
