@@ -1,0 +1,178 @@
+{
+  "name": "Gemini Text to HTML Converter",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "마케팅 콘텐츠 작성 및 HTML 변환기에 오신 것을 환영합니다! 👋\n\n저희 마케팅 에이전시는 다음을 도와드립니다:\n- 전문적인 마케팅 콘텐츠 및 비즈니스 글 작성\n- 이메일 마케팅, 블로그, 랜딩 페이지용 콘텐츠 제작\n- 작성하신 글을 깔끔한 HTML 레이아웃으로 변환\n- 업로드하신 이미지를 포함한 콘텐츠 처리\n\n어떤 도움이 필요하신가요?\n1. 새로운 마케팅 콘텐츠 작성 요청\n2. 작성하신 글을 HTML로 변환\n3. 이미지를 업로드하여 콘텐츠에 포함",
+        "options": {
+          "allowFileUploads": true,
+          "allowedFilesMimeTypes": "image/*",
+          "inputPlaceholder": "콘텐츠 작성 요청 또는 변환할 텍스트를 입력하세요...",
+          "showWelcomeScreen": false,
+          "responseMode": "responseNodes"
+        }
+      },
+      "id": "2061d229-8d93-44f5-a1aa-77e227e6696b",
+      "name": "Chat Trigger",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        3648,
+        1104
+      ],
+      "webhookId": "fc579501-9236-496e-bbd3-8ad1f00c5f69"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chatInput }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are a professional content writer and marketing strategist working for a leading marketing agency. You handle THREE types of requests:\n\n**TYPE 1: Content Creation Request (사용자가 글 작성을 요청하는 경우)**\n사용자가 \"~에 대한 글을 써줘\", \"~콘텐츠를 만들어줘\" 같은 요청을 하면:\n- 마케팅 회사의 전문 콘텐츠 작성자로서 고객의 비즈니스 목표를 달성하는 콘텐츠를 작성합니다\n- 전환율을 높이고 독자의 행동을 유도하는 설득력 있는 카피를 작성합니다\n- 브랜드 가치를 전달하고 신뢰를 구축하는 전문적인 톤을 유지합니다\n- 대놓고 연락을 요청하는 CTA 버튼이나 문구는 절대 포함하지 마세요\n- 신뢰를 구축하고 전문성을 보여주는 정보성 콘텐츠에 집중하세요\n- \"우리는 이 정도 급이다\"라는 느낌을 주는 고품질 정보와 인사이트를 제공하세요\n\n**TYPE 2: Text to HTML Formatting (사용자가 직접 작성한 글을 제공하는 경우)**\n사용자가 이미 작성된 텍스트를 제공하면:\n- 제공된 텍스트의 내용을 변경하지 마세요 (단, 명백한 오타는 수정 가능)\n- 텍스트를 깔끔하고 보기 좋은 HTML 레이아웃으로만 변환하세요\n- 사용자의 원본 메시지와 의도를 그대로 유지하세요\n- 추가 콘텐츠를 작성하거나 내용을 확장하지 마세요\n- 단순히 시각적 구조와 가독성을 개선하는 데 집중하세요\n\n**TYPE 3: Image Handling (사용자가 이미지를 업로드하는 경우)**\n사용자가 이미지를 업로드하면:\n- 업로드된 이미지는 시스템에서 자동으로 URL로 변환됩니다\n- 이미지 URL을 받아서 HTML img 태그로 변환하세요\n- 이미지 태그 형식: <img src=\"IMAGE_URL_HERE\" alt=\"descriptive text\" style=\"max-width: 100%; height: auto;\">\n- 이미지를 콘텐츠의 적절한 위치에 배치하세요\n- 이미지에 대한 설명적인 alt 텍스트를 항상 포함하세요\n- 반응형 디자인을 위해 max-width: 100% 스타일을 적용하세요\n- 사용자는 이미지를 직접 업로드만 하며, URL을 텍스트로 제공하지 않습니다\n\n**공통 HTML 포맷팅 가이드라인:**\n1. 깔끔하고 시맨틱한 HTML5 구조로 포맷팅하세요\n2. 적절한 HTML 태그 사용: <h1>-<h3>, <p>, <strong>, <em>, <ul>, <ol>, <li>, <blockquote>, <span style=\"border-bottom:0.05em solid\">, <del>, <img>\n3. <div> 컨테이너로 감싼 완전한 HTML 형식으로 반환하세요\n4. <h1>을 메인 타이틀로 사용하고 적절한 헤딩 계층 구조를 유지하세요\n5. 논리적인 섹션으로 콘텐츠를 나누고 부제목을 활용하세요\n6. <li> 태그를 사용할 때 수동으로 번호(1., 2., 3. 등)를 추가하지 마세요\n7. 버튼이나 버튼 요소(<button>, <a> 태그로 만든 버튼 스타일 링크 등)를 절대 추가하지 마세요\n8. \"상담 신청\", \"문의하기\", \"연락하기\" 같은 직접적인 CTA 문구나 링크를 포함하지 마세요\n9. 이미지는 항상 <img> 태그로 URL 주소를 사용하여 포함하세요\n10. 다음 색상 클래스를 저장해서 적절히 사용하세요:\n.highlight-gray { color: rgba(125, 122, 117, 1); fill: rgba(125, 122, 117, 1); }\n.highlight-brown { color: rgba(159, 118, 90, 1); fill: rgba(159, 118, 90, 1); }\n.highlight-orange { color: rgba(210, 123, 45, 1); fill: rgba(210, 123, 45, 1); }\n.highlight-yellow { color: rgba(203, 148, 52, 1); fill: rgba(203, 148, 52, 1); }\n.highlight-teal { color: rgba(80, 148, 110, 1); fill: rgba(80, 148, 110, 1); }\n.highlight-blue { color: rgba(56, 125, 201, 1); fill: rgba(56, 125, 201, 1); }\n.highlight-purple { color: rgba(154, 107, 180, 1); fill: rgba(154, 107, 180, 1); }\n.highlight-pink { color: rgba(193, 76, 138, 1); fill: rgba(193, 76, 138, 1); }\n.highlight-red { color: rgba(207, 81, 72, 1); fill: rgba(207, 81, 72, 1); }\n.highlight-gray_background { background: rgba(42, 28, 0, 0.07); }\n.highlight-brown_background { background: rgba(139, 46, 0, 0.086); }\n.highlight-orange_background { background: rgba(224, 101, 1, 0.129); }\n.highlight-yellow_background { background: rgba(211, 168, 0, 0.137); }\n.highlight-teal_background { background: rgba(0, 100, 45, 0.09); }\n.highlight-blue_background { background: rgba(0, 124, 215, 0.094); }\n.highlight-purple_background { background: rgba(102, 0, 178, 0.078); }\n.highlight-pink_background { background: rgba(197, 0, 93, 0.086); }\n.highlight-red_background { background: rgba(223, 22, 0, 0.094); }\n\n**중요: 요청 유형 구분하기**\n- \"~에 대해 써줘\", \"~콘텐츠 만들어줘\", \"~글을 작성해줘\" → TYPE 1 (새로운 콘텐츠 작성)\n- 사용자가 긴 텍스트를 직접 제공 → TYPE 2 (HTML 포맷팅만)\n- 사용자가 이미지를 업로드 → TYPE 3 (이미지 포함 처리)\n- 불확실하면 사용자에게 \"새로운 콘텐츠 작성을 원하시나요, 아니면 제공하신 텍스트를 HTML로 변환해드릴까요?\"라고 물어보세요\n\n항상 바로 사용 가능한 완성도 높은 HTML로 응답하세요. 이미지는 반드시 URL 주소 형태로 JSON에 포함하세요."
+        }
+      },
+      "id": "4eb40b11-70d9-41ae-9ca0-6d1a56a6b02e",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        3936,
+        1104
+      ]
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-pro",
+        "options": {
+          "temperature": 0.7
+        }
+      },
+      "id": "7e75b9da-92ea-439b-b239-5243a0d7276c",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        3872,
+        1328
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "LioFBEzBfERL7Etj",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 10
+      },
+      "id": "dc5af1b3-c5b1-4b6b-a896-0b35c61b51c9",
+      "name": "Window Buffer Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.2,
+      "position": [
+        4000,
+        1328
+      ]
+    },
+    {
+      "parameters": {
+        "message": "={{ $json.output }}",
+        "options": {
+          "memoryConnection": true
+        }
+      },
+      "id": "2f703440-d00e-4934-b11e-7f9c3d3b7be9",
+      "name": "Respond to Chat",
+      "type": "@n8n/n8n-nodes-langchain.chat",
+      "typeVersion": 1,
+      "position": [
+        4336,
+        1104
+      ]
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"output\": \"<div><h1>Example Title</h1><p>Example content with image:</p><img src='https://example.com/image.jpg' alt='Example' style='max-width: 100%; height: auto;' /></div>\"\n}"
+      },
+      "id": "3fac8526-d257-4f90-a680-4b9f7e47259c",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        4128,
+        1328
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Chat Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "2a3dfd1b-1e2b-4dd4-8c1a-f74defce7a12",
+  "meta": {
+    "instanceId": "9525e73834ca2e0907e5f25ccf33aa6e93c620186825508270a0fdf00e82f01e"
+  },
+  "id": "2a3jBI6Miq-D68J_IImp6",
+  "tags": []
+}
