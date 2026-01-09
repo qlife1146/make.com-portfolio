@@ -1,10 +1,10 @@
 # make.com-portfolio
 ## 파일 설명
-제가 make로 만든 자동화 툴입니다.
-`sheet to Figma`: AI에게 말하면 sheet 수정 후 웹훅을 통해 figma에 적용
-`sheet to Figma/make json/make-google to figma.json`: make.com에 import할 json
-`sheet to Figma/n8n json/n8n-google to figma.json`: n8n에 import할 json
-`sheet to Figma/Figma Price.xlxs`: Figma와 연결된 시트 파일(스프레드 시트)
+
+- `sheet to Figma`: AI에게 말하면 sheet 수정 후 웹훅을 통해 figma에 적용
+- `sheet to Figma/make json/make-google to figma.json`: make.com에 import할 json
+- `sheet to Figma/n8n json/n8n-google to figma.json`: n8n에 import할 json
+- `sheet to Figma/Figma Price.xlxs`: Figma와 연결된 시트 파일(스프레드 시트)
 
 ## 실행 구조
 make에 json 파일 import 후 active
