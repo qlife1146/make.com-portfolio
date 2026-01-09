@@ -1,6 +1,6 @@
-# make.com-portfolio
+# sheet to Figma
+AI에게 Figma 값을 변경되도록 하는 시스템
 ## 파일 설명
-
 - `sheet to Figma`: AI에게 말하면 sheet 수정 후 웹훅을 통해 figma에 적용
 - `sheet to Figma/make json/make-google to figma.json`: make.com에 import할 json
 - `sheet to Figma/n8n json/n8n-google to figma.json`: n8n에 import할 json
@@ -16,3 +16,6 @@ figma에 플러그인 추가
 1. n8n에서 chat을 통해 요구사항 전송
 1. 요구사항대로 AI가 시트 수정
 2. Figma에서 실행된 플러그인에 있는 새로고침 클릭하면 시트대로 값 변경
+
+# Gemini Text to HTML Converter
+AI에게 글 작성을 부탁하거나 직접 작성한 글을 HTML 형태로 변경을 요청하는 시스템
